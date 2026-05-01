@@ -1,9 +1,27 @@
 ---
 name: account-pesquisa-profunda-cliente
-description: Pesquisa profunda de cliente para KB acionavel. Orienta coleta de dados internos com o cliente; entrega 4 prompts sequenciais para rodar no Deep Research do Gemini (cliente+digital+regiao; produto+setor; consumidor; concorrencia). Opcional Perplexity com foco social. Nao usa Gem nem deep research no agente. Use antes de copy, conteudo, campanha ou LP.
+description: Pesquisa profunda de cliente para KB acionavel. PREMISSA OBRIGATORIA - dados do cliente ja na pasta (no minimo formulario de kickoff + transcricao de reuniao de vendas). Sem isso a skill nao roda. Usa esses dados pra preencher 4 prompts sequenciais pro Deep Research do Gemini (cliente+digital+regiao; produto+setor; consumidor; concorrencia). Opcional Perplexity. Nao usa Gem nem deep research no agente. Use antes de copy, conteudo, campanha ou LP.
 area: account
 author: guilhermelippert
-version: 1.2.0
+version: 1.4.0
+---
+
+## REGRA CRITICA — paths absolutos sempre
+
+**Toda operacao de filesystem (mkdir, rm, cp, mv, ls, find, Write, Edit) DEVE usar caminho absoluto comecando em `/Users/...` ou na raiz do repo.** Nunca path relativo.
+
+**NUNCA use `cd` em comandos Bash.** O cwd persiste entre Bash calls e cria desastres tipo `clientes/X/calls/squads/squad-exemplo/clientes/X/docs/pesquisa-profunda/...` (estrutura aninhada duplicada porque um `cd` anterior mudou o cwd e um `mkdir -p` posterior com path relativo herdou esse cwd).
+
+**Forma correta:**
+- `mkdir -p "/Users/.../builders-hub/squads/{squad}/clientes/{cliente}/docs/pesquisa-profunda/prompts"` ✅
+- `mkdir -p "squads/{squad}/clientes/{cliente}/docs/pesquisa-profunda/prompts"` ❌ (vai falhar se cwd mudou)
+- `cd ".../calls" && wc -l *.md` ❌ (polui cwd da sessao)
+- `wc -l "/Users/.../calls"/*.md` ✅
+
+**Antes de qualquer `mkdir` ou `Write`:** se voce rodou Bash antes, valide que esta no cwd certo com `pwd` OU simplesmente use path absoluto (preferido). Quando em duvida, sempre absoluto.
+
+**Apos criar a estrutura, faca `find <raiz-cliente> -type d` e confira que nao ha pastas duplicadas aninhadas.** Se aparecer `.../calls/squads/...` ou similar, remova e recrie com path absoluto.
+
 ---
 
 # /account-pesquisa-profunda-cliente
@@ -12,14 +30,26 @@ Conduza o usuario a montar **Knowledge Base do cliente** para gerar resultado em
 
 **O agente normal nao faz deep research.** **Nao use Gem** nem orquestrador externo. O fluxo e:
 
-1. Orientar o usuario a **pegar do cliente** (ou da pasta) tudo que for possivel.
-2. Entregar **quatro prompts prontos** para o usuario colar no **Deep Research do Gemini** — **uma rodada por vez**, na ordem. Entre rodadas, o usuario anexa/cola o relatorio anterior no Gemini junto com o proximo prompt.
-3. **Opcional:** um prompt para **Perplexity** com foco em social/reviews (no fim).
+1. **Verificar que a pasta do cliente ja tem dados internos** (gate obrigatorio).
+2. **Ler e consolidar** esses dados num resumo `[DADOS INTERNOS CONSOLIDADOS]`.
+3. Entregar **quatro prompts prontos** pro usuario colar no **Deep Research do Gemini** — uma rodada por vez, na ordem. Entre rodadas, o usuario anexa/cola o relatorio anterior junto com o proximo prompt.
+4. **Opcional:** prompt pro **Perplexity** com foco social/reviews (no fim).
+
+## Premissa (gate obrigatorio)
+
+**A skill so roda se a pasta do cliente ja tiver dados internos.** Os prompts de Deep Research dependem desses dados pra serem especificos — sem isso, viram pesquisa generica e perdem valor.
+
+**Minimo absoluto pra rodar:**
+
+1. **Formulario de kickoff** preenchido (brief inicial do cliente).
+2. **Transcricao da reuniao de vendas** (ou comercial/discovery — o que tiver).
+
+**Ideal (se tiver, melhor ainda):** transcricoes de outras calls, proposta comercial, export de CRM, materiais que o cliente mandou (catalogo, deck, site interno), notas do gestor.
 
 ## Principios
 
 - Nao invente fatos. Separe evidencias, hipoteses e lacunas.
-- Material interno (brief, CRM, transcricao, kickoff) tem **prioridade** sobre inferencia da web.
+- Material interno (kickoff, vendas, CRM) tem **prioridade** sobre inferencia da web.
 - Nao crie pasta de cliente aqui. Cliente inexistente → `/novo-cliente`.
 - **Gemini Deep Research:** quatro execucoes sequenciais conforme templates abaixo.
 - **Perplexity:** complemento social com links (opcional).
@@ -27,14 +57,14 @@ Conduza o usuario a montar **Knowledge Base do cliente** para gerar resultado em
 
 ## Passo 1 — Identificar cliente e pasta
 
-1. Nome/slug do cliente; se ambiguo, liste `clientes/` (ignore `_template`) e pergunte.
-2. Se nao existir pasta → mensagem fixa para `/novo-cliente`.
-3. Trabalhe em `clientes/<cliente>/docs/pesquisa-profunda/`.
+1. Pergunte squad e nome/slug do cliente; se ambiguo, liste `squads/{squad}/clientes/` (ignore `_template`) e pergunte.
+2. Se nao existir pasta → mensagem fixa pra `/novo-cliente`.
+3. Trabalhe em `squads/{squad}/clientes/<cliente>/docs/pesquisa-profunda/`.
 
 Estrutura a criar ou completar:
 
 ```text
-clientes/<cliente>/docs/pesquisa-profunda/
+squads/{squad}/clientes/<cliente>/docs/pesquisa-profunda/
 ├── 00-briefing-pesquisa.md
 ├── 01-cliente-posicionamento-digital.md   # sintese pos DR-1
 ├── 02-mercado-setor-modelo-negocio.md     # sintese pos DR-2 (parte setor)
@@ -60,37 +90,71 @@ clientes/<cliente>/docs/pesquisa-profunda/
 
 Se `docs/` nao existir, crie.
 
-## Passo 2 — O que o usuario precisa ter antes dos 4 Deep Researches
+## Passo 2 — Gate de dados internos (BLOQUEANTE)
 
-**Instrua o usuario** a reunir com o cliente (ou colar do CRM/pasta) o maximo possivel:
+**Antes de gerar qualquer prompt**, faca uma varredura na pasta do cliente atras de dados internos. Lugares pra olhar:
 
-| Area | O que pedir |
-|------|-------------|
-| Identidade | Nome fantasia, razao se util, **cidade/UF ou abrangencia** (critico para regiao) |
-| Digital | Site, Instagram, TikTok, YouTube, LinkedIn, Google Meu Negocio, marketplaces (links) |
-| Cadastro | CNPJ/contato **se autorizado** (dado sensivel; pasta local gitignored) |
-| Oferta | O que vendem, pacotes, B2B/B2C, ticket ou faixa se souberem |
-| Mercado | Concorrentes que o cliente cita, restricoes (verba, compliance, canais) |
-| Interno | Notas ou transcricao de **kickoff**, **vendas**, **comercial**; **formulario de brief**; proposta; export CRM |
-| Objetivo | O que a KB precisa destravar (copy, campanha, LP, diagnostico) |
+- `squads/{squad}/clientes/<cliente>/calls/` — transcricoes de kickoff, vendas, comerciais
+- `squads/{squad}/clientes/<cliente>/docs/` — formulario de kickoff, brief, proposta
+- `squads/{squad}/clientes/<cliente>/campanhas/` — material de campanha existente
+- `squads/{squad}/clientes/<cliente>/links.md` — links uteis (NotebookLM, Drive, site)
+- Qualquer outro arquivo na raiz do cliente
 
-Se vier pouco: **prossiga mesmo assim** — preencha `00-briefing-pesquisa.md` com o que ha e marque **LACUNA**; os prompts abaixo ja mandam o modelo declarar lacunas.
+**Checklist do minimo:**
 
-**Nao dependa de Gem.** Entregue os quatro arquivos em `prompts/` (ou o texto no chat) **ja preenchidos** com resumo `[DADOS INTERNOS CONSOLIDADOS]` extraido do briefing/pasta.
+- [ ] Formulario de kickoff (brief inicial preenchido pelo cliente)
+- [ ] Transcricao da reuniao de vendas (ou comercial / discovery)
 
-## Passo 3 — Instrucao fixa ao usuario (copiar para o time)
+**Se faltar qualquer um dos dois, PARE e mande a mensagem abaixo. Nao gere prompts. Nao prossiga.**
+
+> Pra rodar a pesquisa profunda eu preciso, no minimo, de dois materiais ja na pasta do cliente:
+>
+> 1. **Formulario de kickoff** — o brief inicial preenchido com o cliente.
+> 2. **Transcricao da reuniao de vendas** (ou comercial/discovery — o que voce tiver).
+>
+> Sem isso os prompts de Deep Research saem genericos e a KB nao serve. Faltando: **[X, Y]**.
+>
+> Como destravar:
+> - Cola/salva o formulario de kickoff em `squads/{squad}/clientes/<cliente>/docs/`.
+> - Cola/salva a transcricao em `squads/{squad}/clientes/<cliente>/calls/`.
+> - Se tiver mais (outras calls, proposta, export CRM, deck, catalogo), joga junto — quanto mais, melhor.
+>
+> Quando estiver na pasta, roda `/account-pesquisa-profunda-cliente` de novo.
+
+**Se tiver os dois (ou mais), prossiga.** Nao roda parcialmente "com o que tem" — o gate e duro de proposito.
+
+## Passo 3 — Consolidar `[DADOS INTERNOS CONSOLIDADOS]`
+
+Le tudo que achou na varredura e produz um bloco de **resumo fiel** com:
+
+| Campo | Origem |
+|-------|--------|
+| Identidade (nome fantasia, razao, cidade/UF, abrangencia) | Kickoff + vendas |
+| Digital (site, IG, TikTok, YouTube, LinkedIn, GMN, marketplaces) | Kickoff + links.md |
+| Oferta (produtos/servicos, pacotes, B2B/B2C, ticket/faixa) | Kickoff + vendas |
+| Mercado (concorrentes citados, restricoes — verba, compliance, canais) | Vendas + kickoff |
+| Dores/objetivos do cliente (o que ele quer destravar) | Vendas |
+| Historico (tentativas anteriores, o que funcionou/falhou) | Vendas |
+| Citacoes literais relevantes do cliente | Transcricao (entre aspas) |
+| Objetivo da KB (copy / campanha / LP / diagnostico) | Pergunta direta se nao tiver |
+
+**Salve esse resumo em `00-briefing-pesquisa.md`** — vira a fonte unica que vai dentro de cada prompt como `<<<DADOS INTERNOS CONSOLIDADOS>>>`.
+
+Se o cliente afirmou algo critico mas duvidoso na call, marque **VALIDAR**. Se uma area ficou vazia mesmo com kickoff+vendas, marque **LACUNA** — entra como pergunta pro DR.
+
+## Passo 4 — Instrucao fixa ao usuario
 
 Envie algo neste spirit:
 
-> Rode **quatro Deep Researches no Gemini**, **um de cada vez**. Em cada rodada depois da primeira, **anexe ou cole o relatório anterior** no contexto do Deep Research junto com o novo prompt. Salve cada saida em `bruto/gemini/dr-0N-output.md`. Opcional: no fim, rode o `prompt-perplexity-social-opcional.md` no Perplexity.
+> Rode **quatro Deep Researches no Gemini**, **um de cada vez**. Em cada rodada depois da primeira, **anexe ou cole o relatorio anterior** no contexto do Deep Research junto com o novo prompt. Salve cada saida em `bruto/gemini/dr-0N-output.md`. Opcional: no fim, rode o `prompt-perplexity-social-opcional.md` no Perplexity.
 
-## Templates dos 4 prompts (obrigatorio entregar preenchidos)
+## Templates dos 4 prompts (entregar SEMPRE preenchidos com `[DADOS INTERNOS CONSOLIDADOS]`)
 
-O agente deve **substituir** o placeholder `<<<DADOS INTERNOS CONSOLIDADOS>>>` pelo texto real (e em DR-2+, pode adicionar `<<<RESUMO DR-ANTERIOR>>>` com 10-20 linhas do que o usuario colou do relatorio anterior, se ele ja tiver).
+O agente deve **substituir** o placeholder `<<<DADOS INTERNOS CONSOLIDADOS>>>` pelo bloco real consolidado no Passo 3. Em DR-2+, deixe espaco pro usuario colar `<<<OUTPUT DR-ANTERIOR OU RESUMO>>>` quando rodar.
 
 ### DR-1 — Cliente, posicionamento digital e regiao
 
-Salvar como `prompts/dr-1-cliente-posicionamento-regiao.md`. Objetivo: entender o cliente; mapear **tudo** que der para achar e inferir do **posicionamento digital** (fato vs inferencia); **regiao de atuacao** (Brasil, estadual, local, multi-regiao) e **pormenores uteis** do territorio para marketing (com fonte ou como inferencia explicita).
+Salvar como `prompts/dr-1-cliente-posicionamento-regiao.md`. Objetivo: entender o cliente; mapear **tudo** que der pra achar e inferir do **posicionamento digital** (fato vs inferencia); **regiao de atuacao** (Brasil, estadual, local, multi-regiao) e **pormenores uteis** do territorio pra marketing (com fonte ou como inferencia explicita).
 
 ```text
 Deep Research — Rodada 1 de 4: Cliente, presenca digital e regiao de atuacao.
@@ -100,9 +164,9 @@ DADOS INTERNOS (nao contradizer sem apontar inconsistencia):
 
 TAREFA:
 1) Quem e o cliente e o que parece vender (cruzar digital + dados internos).
-2) Posicionamento digital: site, redes,SEO aparente, tom, promessas, provas sociais, gaps.
+2) Posicionamento digital: site, redes, SEO aparente, tom, promessas, provas sociais, gaps.
 3) Separar rigorosamente: FATO (fonte publica ou dado interno) / INFERENCIA / HIPOTESE / LACUNA.
-4) Regiao de atuacao: escala (Brasil vs regional vs local); evidencias; nuances do territorio **uteis para marketing** (economia, consumo, concorrencia local quando houver fonte — evitar clichês sem fonte).
+4) Regiao de atuacao: escala (Brasil vs regional vs local); evidencias; nuances do territorio **uteis para marketing** (economia, consumo, concorrencia local quando houver fonte — evitar cliches sem fonte).
 5) Perguntas obrigatorias para validar com o cliente.
 6) Riscos: homonimia de marca, dados desatualizados.
 
@@ -179,7 +243,7 @@ REGRAS: PT-BR; links; FATO/INFERENCIA/LACUNA; homonimia.
 
 ## Opcional — Perplexity (busca social)
 
-Salvar `prompt-perplexity-social-opcional.md` e dizer ao usuario que e **recomendado depois da DR-3 ou DR-4** para cruzar reviews/comentarios com links.
+Salvar `prompt-perplexity-social-opcional.md` e dizer ao usuario que e **recomendado depois da DR-3 ou DR-4** pra cruzar reviews/comentarios com links.
 
 ```text
 Pesquisa com FONTES e LINKS — foco em voz social do consumidor.
@@ -217,10 +281,10 @@ Preencha `07-fontes-e-evidencias.md` com links, data, ferramenta, fato vs infere
 
 Entregue ao usuario:
 
-1. `00-briefing-pesquisa.md` atualizado.
-2. Os quatro arquivos em `prompts/` **preenchidos** (ou os quatro blocos no chat).
+1. `00-briefing-pesquisa.md` atualizado com o `[DADOS INTERNOS CONSOLIDADOS]`.
+2. Os quatro arquivos em `prompts/` **preenchidos** com os dados internos reais (ou os quatro blocos no chat).
 3. `prompt-perplexity-social-opcional.md` preenchido.
 4. Onde salvar cada output bruto.
-5. Lacunas criticas para o cliente.
+5. Lacunas criticas pro cliente validar.
 
 Nao entregue plano de campanha final aqui — isso vem depois da KB consolidada.
