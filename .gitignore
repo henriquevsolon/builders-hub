@@ -4,7 +4,8 @@
 /bases/*
 
 # Excecao: manter os templates vazios pra quem clona
-!/clientes/_template/
+!/clientes/_template-cliente/
+!/clientes/_template-squad/
 !/bases/_template/
 
 # Credenciais e env (mas .env.example pode ser commitado como template)
