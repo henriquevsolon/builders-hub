@@ -3,16 +3,16 @@ name: novo-cliente
 description: Cria uma nova pasta de cliente dentro de um squad com estrutura padrao, CLAUDE.md inicial e links.md. Pergunta squad, nome e links uteis (NotebookLM, Drive, site, outros). Use quando o usuario rodar /novo-cliente ou disser que quer adicionar um cliente novo.
 ---
 
-Voce vai criar a pasta de um novo cliente DENTRO de um squad. Todo cliente vive em `clientes/{squad}/clientes/{cliente}/`.
+Voce vai criar a pasta de um novo cliente DENTRO de um squad. **Padrao obrigatorio:** `squads/{squad}/clientes/{cliente}/`. Cliente fora de squad nao existe.
 
 ## Processo
 
 ### Passo 1 — Escolher o squad
 
-Liste os squads existentes em `clientes/` (ignore qualquer pasta `_template-*`):
+Liste os squads existentes em `squads/` (ignore qualquer pasta `_template-*`):
 
 ```bash
-ls clientes/ | grep -v '^_template-'
+ls squads/ | grep -v '^_template-'
 ```
 
 - **Se nao existir nenhum squad**: pare e diga:
@@ -35,12 +35,12 @@ Converta para lowercase-com-hifens (ex: "Academia Estação Saúde" → "academi
 ### Passo 3 — Criar a estrutura
 
 ```bash
-cp -r clientes/_template-cliente "clientes/[squad]/clientes/[cliente]"
+cp -r squads/_template-cliente "squads/[squad]/clientes/[cliente]"
 # Copia o .env.example pra .env (inicial vazio, o usuario preenche conforme for usando)
-cp "clientes/[squad]/clientes/[cliente]/.env.example" "clientes/[squad]/clientes/[cliente]/.env"
+cp "squads/[squad]/clientes/[cliente]/.env.example" "squads/[squad]/clientes/[cliente]/.env"
 ```
 
-O `.env` e gitignored por padrao (clientes/ inteiro e — so `_template-*/` sobe pro repo). Credenciais ficam locais.
+O `.env` e gitignored por padrao (`squads/` inteiro e — so `_template-*/` sobe pro repo). Credenciais ficam locais.
 
 ### Passo 4 — Coletar links uteis
 
@@ -56,7 +56,7 @@ Se NotebookLM tiver link, extraia o notebook ID (parte depois de `/notebook/`).
 
 ### Passo 5 — Escrever `links.md`
 
-Atualize `clientes/[squad]/clientes/[cliente]/links.md` substituindo o template:
+Atualize `squads/[squad]/clientes/[cliente]/links.md` substituindo o template:
 
 ```markdown
 # Links uteis
@@ -82,7 +82,7 @@ Itens nao informados ficam com `—`. A secao "Outros" recebe os itens do loop (
 
 ### Passo 6 — Escrever `CLAUDE.md` do cliente
 
-Crie `clientes/[squad]/clientes/[cliente]/CLAUDE.md` com:
+Crie `squads/[squad]/clientes/[cliente]/CLAUDE.md` com:
 
 ```markdown
 # [Nome do Cliente]
@@ -103,7 +103,7 @@ Rode `/contexto` apos adicionar dados (calls, docs, campanhas) pra gerar o conte
 
 Mostre a estrutura criada:
 ```
-clientes/[squad]/clientes/[cliente]/
+squads/[squad]/clientes/[cliente]/
 ├── CLAUDE.md
 ├── links.md         # links uteis (NotebookLM, Drive, site, outros)
 ├── .env            # suas credenciais (gitignored)

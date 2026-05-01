@@ -1,7 +1,9 @@
-# Spec — Camada de Squad em `clientes/`
+# Spec — Camada de Squad em `squads/`
 
 **Data:** 2026-05-01
-**Status:** Aprovado para implementacao
+**Status:** Implementado
+
+> **Nota de update (2026-05-01):** durante a execucao, a pasta wrapper `clientes/` foi renomeada para `squads/` pra deixar a hierarquia explicita. Onde este spec menciona `clientes/{squad}/...`, leia como `squads/{squad}/...`. O caminho final padronizado e: `squads/{squad}/clientes/{cliente}/`. Cliente solto fora de squad nao existe.
 
 ## Contexto
 

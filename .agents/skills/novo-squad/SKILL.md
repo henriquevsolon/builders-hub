@@ -1,16 +1,16 @@
 ---
 name: novo-squad
-description: Cria uma nova pasta de squad em clientes/ com README de membros e estrutura padrao. Pergunta nome do squad e quem e quem. Use quando o usuario rodar /novo-squad ou disser que quer criar um squad novo.
+description: Cria uma nova pasta de squad em squads/ com README de membros e estrutura padrao. Pergunta nome do squad e quem e quem. Use quando o usuario rodar /novo-squad ou disser que quer criar um squad novo.
 ---
 
 Voce vai criar a pasta de um novo squad com a estrutura padrao, um README listando os membros e um CLAUDE.md inicial.
 
 ## Contexto
 
-Squads sao times fixos de pessoas (gestor, account, trafego, criativo, CS, etc.) que atendem varios clientes. Um cliente pertence a um squad so. A estrutura final e:
+Squads sao times fixos de pessoas (gestor, account, trafego, criativo, CS, etc.) que atendem varios clientes. Um cliente pertence a um squad so. **Padrao obrigatorio:** `squads/{squad}/clientes/{cliente}/`. A estrutura final do squad e:
 
 ```
-clientes/{squad}/
+squads/{squad}/
 ├── CLAUDE.md          ← contexto do squad (lido em cascata pelo Claude)
 ├── README.md          ← quem e quem (formato livre)
 ├── docs/              ← docs gerais do squad
@@ -31,7 +31,7 @@ Guarde duas versoes do nome:
 ### Passo 2 — Criar a estrutura
 
 ```bash
-cp -r clientes/_template-squad "clientes/[nome-formatado]"
+cp -r squads/_template-squad "squads/[nome-formatado]"
 ```
 
 Substitua `{NOME}` no `CLAUDE.md` e no `README.md` da nova pasta pelo **nome digitado** (com capitalizacao preservada — nao pela versao em hifens).
@@ -66,7 +66,7 @@ Se nenhum membro foi coletado, deixa o placeholder ou substitui por `- (a preenc
 
 Mostre a estrutura criada:
 ```
-clientes/[nome-formatado]/
+squads/[nome-formatado]/
 ├── CLAUDE.md
 ├── README.md          ← com os membros
 ├── docs/

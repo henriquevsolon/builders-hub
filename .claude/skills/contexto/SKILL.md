@@ -7,9 +7,11 @@ Voce vai analisar uma Knowledge Base e gerar os arquivos `CLAUDE.md` e `AGENTS.m
 
 ## Estrutura esperada
 
-- `clientes/{squad}/` — pasta de squad (tem `README.md` com membros, `docs/`, e subpasta `clientes/`)
-- `clientes/{squad}/clientes/{cliente}/` — pasta de cliente (tem `calls/`, `docs/`, `campanhas/`, `links.md`)
+- `squads/{squad}/` — pasta de squad (tem `README.md` com membros, `docs/`, e subpasta `clientes/`)
+- `squads/{squad}/clientes/{cliente}/` — pasta de cliente (tem `calls/`, `docs/`, `campanhas/`, `links.md`)
 - `bases/{projeto}/` — pasta de projeto/area (tem `docs/`, `dados/`, `referencias/`)
+
+**Padrao obrigatorio:** todo cliente vive em `squads/{squad}/clientes/{cliente}/`. Cliente solto, fora de squad, nao existe.
 
 ## Processo
 
@@ -21,8 +23,8 @@ Detecte o que rodar com base na pasta corrente do usuario:
 - **Pasta corrente e squad** (tem subpasta `clientes/` E `README.md`): use ela direto.
 - **Pasta corrente e projeto** (`bases/{X}/`): use ela direto.
 - **Caso contrario:** liste todas as KBs disponiveis e pergunte:
-  - Squads: `clientes/*/` (ignorando `_template-*`)
-  - Clientes: `clientes/*/clientes/*/`
+  - Squads: `squads/*/` (ignorando `_template-*`)
+  - Clientes: `squads/*/clientes/*/`
   - Projetos: `bases/*/` (ignorando `_template`)
 
 ### Passo 2 — Detectar o tipo
