@@ -1,14 +1,15 @@
 # Builders Hub — Registry
 
-**16 skills** · última atualização: 2026-05-01
+**18 skills** · última atualização: 2026-05-15
 
 > Catálogo auto-gerado por `scripts/build-registry.py`. Não edite à mão — rode `/sync-hub` ou envie PR pela `/compartilhar-skill`.
 
 ## Índice
 
 - [🛠 Base (setup/fluxo)](#base) (7)
-- [🌐 Geral](#geral) (4)
+- [🌐 Geral](#geral) (5)
 - [🤝 Account](#account) (4)
+- [📋 Coordenacao](#coord) (1)
 - [🔌 Integrações / Fontes](#fontes) (1)
   - [🔌 V4mos](#v4mos) (1)
 
@@ -35,7 +36,8 @@
 | `geral-brainstormar-sobre-minha-funcao` | Entrevista o usuario sobre seu trabalho para descobrir como usar IA no dia a dia dele. Configura agenda, an... | — | — |
 | `geral-frontend-design` | Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the... | — | — |
 | `geral-sabatina` | Entrevista o usuario de forma implacavel sobre cada aspecto de um plano ou design ate atingir entendimento... | — | — |
-| `novo-squad` | Cria uma nova pasta de squad em squads/ com README de membros e estrutura padrao. Pergunta nome do squad e... | — | — |
+| `geral-sync-call-transcripts` | Puxa transcripts do Gemini Notes (Google Meet) do Drive da unidade e organiza automaticamente — calls com c... | @solonhv-hub | 2.0.0 |
+| `novo-squad` | Cria uma nova pasta de squad em squads/ com README de membros, links.md (incluindo Drive folder do squad),... | — | — |
 
 ## 🤝 Account
 
@@ -47,6 +49,14 @@
 | `account-checkin-roleplay` | Prepara o account pra reunião de check-in com cliente seguindo ROPRE V4 e roda roleplay realista simulando... | @guilhermelippert | 1.0.0 |
 | `account-handoff` | Primeira skill que o account roda quando recebe um cliente novo de vendas. Le form de kickoff + transcript... | @guilhermelippert | 1.0.0 |
 | `account-pesquisa-profunda-cliente` | Pesquisa profunda de cliente para KB acionavel. PREMISSA OBRIGATORIA - dados do cliente ja na pasta (no min... | @guilhermelippert | 1.5.0 |
+
+## 📋 Coordenacao
+
+<a id="coord"></a>
+
+| Skill | O que faz | Autor | v |
+|---|---|---|---|
+| `coord-auditoria-rotinas-squad` | Auditoria semanal das rotinas internas e dos invites de cliente do squad. Cruza Google Calendar + telemetri... | @solonhv-hub | 2.0.0 |
 
 ## 🔌 Integrações / Fontes
 

@@ -48,3 +48,16 @@ Consulte [REGISTRY.md](./REGISTRY.md) pra ver tudo que o time ja compartilhou. P
 - Nunca commitar arquivos de `squads/` ou `bases/` — sao pessoais, ficam no `.gitignore` (so os templates `_template-*` sobem).
 - Nunca editar `REGISTRY.md` a mao — e auto-gerado pelo script `scripts/build-registry.py` e pela GitHub Action.
 - Se o fluxo git/gh quebrar em qualquer skill (sync, compartilhar, push), oriente rodar `/onboarding` de novo — os checks de setup sao a primeira coisa que ele faz.
+
+## Perfil do Usuario
+
+- **Nome:** Henrique Solon
+- **Funcao:** Coordenador de PE&G na V4
+- **Tempo na funcao:** Quase 4 anos; antes atuou como Cientista do Marketing na V4
+- **Carteira e estrutura:** Atende cerca de 20 a 25 clientes por mes de assessoria, alem de clientes one-time, principalmente de Estruturacao Estrategica; lidera um squad com 5 pessoas, composto por 2 duplas de Gestor de Projetos + Gestor de Trafego e 1 Designer
+- **Focos principais:** Retencao como frente principal; monetizacao como frente secundaria, com apoio do Account Manager / Gestor de Projetos
+- **Contexto da carteira:** Maior parte da base em clientes Tiny e Small, o que aumenta a dificuldade de controlar churn e expandir receita
+- **Ferramentas e fontes de contexto:** WhatsApp, eKyte, Google Calendar, Google Sheets, Health Score, Sprint Growth, planilha de Gestao do Squad, contas de Meta Ads e Google Ads, CRM dos clientes quando houver acesso
+- **Workflows principais:** Resumo dos grupos de WhatsApp; auditoria de execucao no eKyte; radar de risco relacional e de performance dos clientes; preparacao da pauta/ata do Comite de Operacoes; preparacao de 1:1 com colaboradores
+- **Principais dores:** Informacao descentralizada; excesso de reunioes; baixa confiabilidade do eKyte como fonte principal de execucao; dificuldade de acompanhar resultados e sinais de risco de forma preditiva; pouco tempo para preparar com qualidade Comites e 1:1
+- **Prioridades IA:** Criar um resumo recorrente dos grupos de WhatsApp; montar um preparador de pauta/ata do Comite de Operacoes; estruturar um briefing melhor de 1:1; evoluir depois para auditoria de eKyte e radar semanal de risco da carteira

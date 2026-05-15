@@ -47,3 +47,4 @@ build/
 *.log
 npm-debug.log*
 .sync-hub-last
+.sync-call-state.json
